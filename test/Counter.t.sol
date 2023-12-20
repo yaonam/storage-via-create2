@@ -10,33 +10,37 @@ contract CounterTest is Test {
 
     function setUp() public {
         caller = new Caller();
-        impl = new Implementation();
+        impl = new Implementation(address(caller));
     }
 
     function testCalldataProxy() public {
         address proxy = caller.deployCalldataProxy();
-        caller.callCalldataProxy(impl, address(caller));
         assertEq(proxy, caller.computeCalldataProxyAddress());
+        vm.expectCall(address(impl), "");
+        caller.callCalldataProxy(impl, address(caller));
     }
 
     function testImmutableProxy() public {
         address proxy = caller.deployImmutableProxy(impl, address(caller));
-        caller.callImmutableProxy(impl, address(caller));
         assertEq(
             proxy,
             caller.computeImmutableProxyAddress(impl, address(caller))
         );
+        vm.expectCall(address(impl), "");
+        caller.callImmutableProxy(impl, address(caller));
     }
 
     function testBytecodeProxy() public {
         address proxy = caller.deployBytecodeProxy(impl, address(caller));
-        caller.callBytecodeProxy();
         assertEq(proxy, caller.computeBytecodeProxyAddress());
+        vm.expectCall(address(impl), "");
+        caller.callBytecodeProxy();
     }
 
     function testCloneProxy() public {
         address proxy = caller.deployCloneProxy(impl);
-        caller.callCloneProxy(impl, address(caller));
         assertEq(proxy, caller.computeCloneProxyAddress(impl));
+        vm.expectCall(address(impl), "");
+        caller.callCloneProxy(impl, address(caller));
     }
 }

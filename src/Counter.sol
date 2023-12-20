@@ -3,6 +3,8 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
+import {console2} from "forge-std/Test.sol";
+
 contract Caller {
     bytes32 immutable BYTECODE_PROXY_CREATIONCODEHASH =
         keccak256(type(BytecodeProxy).creationCode);
@@ -42,15 +44,18 @@ contract Caller {
     }
 
     function callBytecodeProxy() external {
-        (bool success, ) = computeBytecodeProxyAddress().call(")");
+        (bool success, ) = computeBytecodeProxyAddress().call("");
         require(success);
     }
 
-    function callCalldataProxy(Implementation impl, address cred) external {
+    function callCalldataProxy(
+        Implementation impl,
+        address cred
+    ) external view {
         CalldataProxy(computeCalldataProxyAddress()).forward(impl, cred);
     }
 
-    function callCloneProxy(Implementation impl, address cred) external {
+    function callCloneProxy(Implementation impl, address cred) external view {
         Implementation(computeCloneProxyAddress(impl)).foo(cred);
     }
 
@@ -101,8 +106,33 @@ contract Caller {
     }
 }
 
+contract BytecodeProxy {
+    Implementation private immutable impl;
+    address private immutable cred;
+
+    constructor() {
+        (impl, cred) = Caller(msg.sender).getImplAndCred();
+    }
+
+    fallback() external {
+        address _impl = address(impl);
+        bytes memory data = abi.encodeWithSelector(
+            Implementation.foo.selector,
+            cred
+        );
+        assembly {
+            let success := call(gas(), _impl, 0, add(data, 0x20), data, 0, 0)
+            returndatacopy(0, 0, returndatasize())
+            if iszero(success) {
+                revert(0, returndatasize())
+            }
+            return(0, returndatasize())
+        }
+    }
+}
+
 contract CalldataProxy {
-    function forward(Implementation impl, address cred) external {
+    function forward(Implementation impl, address cred) external view {
         impl.foo(cred);
     }
 }
@@ -133,31 +163,14 @@ contract ImmutableProxy {
     }
 }
 
-contract BytecodeProxy {
-    Implementation private immutable impl;
-    address private immutable cred;
-
-    constructor() {
-        (impl, cred) = Caller(msg.sender).getImplAndCred();
-    }
-
-    fallback() external {
-        address _impl = address(impl);
-        bytes memory data = abi.encodeWithSelector(
-            Implementation.foo.selector,
-            cred
-        );
-        assembly {
-            let success := call(gas(), _impl, 0, add(data, 0x20), data, 0, 0)
-            returndatacopy(0, 0, returndatasize())
-            if iszero(success) {
-                revert(0, returndatasize())
-            }
-            return(0, returndatasize())
-        }
-    }
-}
-
 contract Implementation {
-    function foo(address cred) external {}
+    address immutable cred;
+
+    constructor(address _cred) {
+        cred = _cred;
+    }
+
+    function foo(address _cred) external view {
+        require(cred == _cred);
+    }
 }
