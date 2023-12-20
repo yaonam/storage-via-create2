@@ -7,50 +7,46 @@ This repo compares the deployment and call forwarding costs of three types of pr
 | src/Counter.sol:Caller contract |                 |        |        |        |         |
 | ------------------------------- | --------------- | ------ | ------ | ------ | ------- |
 | Deployment Cost                 | Deployment Size |        |        |        |         |
-| 745301                          | 3708            |        |        |        |         |
+| 690842                          | 4543            |        |        |        |         |
 | Function Name                   | min             | avg    | median | max    | # calls |
-| bytecodeProxy                   | 359             | 359    | 359    | 359    | 1       |
-| callBytecodeProxy               | 3986            | 3986   | 3986   | 3986   | 1       |
-| callCalldataProxy               | 4418            | 4418   | 4418   | 4418   | 1       |
-| callCloneProxy                  | 3546            | 3546   | 3546   | 3546   | 1       |
-| callImmutableProxy              | 3942            | 3942   | 3942   | 3942   | 1       |
-| calldataProxy                   | 404             | 404    | 404    | 404    | 1       |
-| cloneProxy                      | 381             | 381    | 381    | 381    | 1       |
-| computeBytecodeProxyAddress     | 1039            | 1039   | 1039   | 1039   | 1       |
-| computeCalldataProxyAddress     | 975             | 975    | 975    | 975    | 1       |
-| computeCloneProxyAddress        | 846             | 846    | 846    | 846    | 1       |
-| computeImmutableProxyAddress    | 2956            | 2956   | 2956   | 2956   | 1       |
-| deployBytecodeProxy             | 154845          | 154845 | 154845 | 154845 | 1       |
-| deployCalldataProxy             | 113648          | 113648 | 113648 | 113648 | 1       |
-| deployCloneProxy                | 65863           | 65863  | 65863  | 65863  | 1       |
-| deployImmutableProxy            | 109906          | 109906 | 109906 | 109906 | 1       |
-| getImplAndCred                  | 466             | 466    | 466    | 466    | 1       |
-| immutableProxy                  | 382             | 382    | 382    | 382    | 1       |
-
-| src/Counter.sol:CalldataProxy contract |                 |      |        |      |         |
-| -------------------------------------- | --------------- | ---- | ------ | ---- | ------- |
-| Deployment Cost                        | Deployment Size |      |        |      |         |
-| 56905                                  | 316             |      |        |      |         |
-| Function Name                          | min             | avg  | median | max  | # calls |
-| forward                                | 3489            | 3489 | 3489   | 3489 | 1       |
-
-| src/Counter.sol:ImmutableProxy contract |                 |      |        |      |         |
-| --------------------------------------- | --------------- | ---- | ------ | ---- | ------- |
-| Deployment Cost                         | Deployment Size |      |        |      |         |
-| 52896                                   | 513             |      |        |      |         |
-| Function Name                           | min             | avg  | median | max  | # calls |
-| forward                                 | 3232            | 3232 | 3232   | 3232 | 1       |
+| callBytecodeProxy               | 3897            | 3897   | 3897   | 3897   | 1       |
+| callCalldataProxy               | 4743            | 4743   | 4743   | 4743   | 1       |
+| callCloneProxy                  | 4085            | 4085   | 4085   | 4085   | 1       |
+| callImmutableProxy              | 6233            | 6233   | 6233   | 6233   | 1       |
+| computeBytecodeProxyAddress     | 551             | 551    | 551    | 551    | 1       |
+| computeCalldataProxyAddress     | 594             | 594    | 594    | 594    | 1       |
+| computeCloneProxyAddress        | 724             | 724    | 724    | 724    | 1       |
+| computeImmutableProxyAddress    | 2789            | 2789   | 2789   | 2789   | 1       |
+| deployBytecodeProxy             | 125266          | 125266 | 125266 | 125266 | 1       |
+| deployCalldataProxy             | 89017           | 89017  | 89017  | 89017  | 1       |
+| deployCloneProxy                | 41661           | 41661  | 41661  | 41661  | 1       |
+| deployImmutableProxy            | 80396           | 80396  | 80396  | 80396  | 1       |
+| getImplAndCred                  | 444             | 444    | 444    | 444    | 1       |
 
 | src/Counter.sol:BytecodeProxy contract |                 |      |        |      |         |
 | -------------------------------------- | --------------- | ---- | ------ | ---- | ------- |
 | Deployment Cost                        | Deployment Size |      |        |      |         |
-| 53580                                  | 516             |      |        |      |         |
+| 48152                                  | 487             |      |        |      |         |
 | Function Name                          | min             | avg  | median | max  | # calls |
-| forward                                | 3232            | 3232 | 3232   | 3232 | 1       |
+| fallback                               | 3192            | 3192 | 3192   | 3192 | 1       |
+
+| src/Counter.sol:CalldataProxy contract |                 |      |        |      |         |
+| -------------------------------------- | --------------- | ---- | ------ | ---- | ------- |
+| Deployment Cost                        | Deployment Size |      |        |      |         |
+| 56505                                  | 314             |      |        |      |         |
+| Function Name                          | min             | avg  | median | max  | # calls |
+| forward                                | 3557            | 3557 | 3557   | 3557 | 1       |
+
+| src/Counter.sol:ImmutableProxy contract |                 |      |        |      |         |
+| --------------------------------------- | --------------- | ---- | ------ | ---- | ------- |
+| Deployment Cost                         | Deployment Size |      |        |      |         |
+| 47490                                   | 484             |      |        |      |         |
+| Function Name                           | min             | avg  | median | max  | # calls |
+| fallback                                | 3192            | 3192 | 3192   | 3192 | 1       |
 
 | src/Counter.sol:Implementation contract |                 |     |        |     |         |
 | --------------------------------------- | --------------- | --- | ------ | --- | ------- |
 | Deployment Cost                         | Deployment Size |     |        |     |         |
-| 32287                                   | 191             |     |        |     |         |
+| 45521                                   | 394             |     |        |     |         |
 | Function Name                           | min             | avg | median | max | # calls |
-| foo                                     | 235             | 235 | 235    | 235 | 4       |
+| foo                                     | 306             | 306 | 306    | 306 | 4       |
