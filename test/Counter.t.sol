@@ -13,28 +13,39 @@ contract CounterTest is Test {
         impl = new Implementation();
     }
 
-    // function test_Increment() public {
-    //     counter.increment();
-    //     assertEq(counter.number(), 1);
-    // }
-
-    // function testFuzz_SetNumber(uint256 x) public {
-    //     counter.setNumber(x);
-    //     assertEq(counter.number(), x);
-    // }
-
     function testCalldataProxy() public {
         caller.deployCalldataProxy();
         caller.callCalldataProxy(impl, address(caller));
+        assertEq(
+            address(caller.calldataProxy()),
+            caller.computeCalldataProxyAddress()
+        );
     }
 
     function testImmutableProxy() public {
         caller.deployImmutableProxy(impl);
         caller.callImmutableProxy();
+        assertEq(
+            address(caller.immutableProxy()),
+            caller.computeImmutableProxyAddress(impl, address(caller))
+        );
     }
 
     function testBytecodeProxy() public {
         caller.deployBytecodeProxy(impl);
         caller.callBytecodeProxy();
+        assertEq(
+            address(caller.bytecodeProxy()),
+            caller.computeBytecodeProxyAddress()
+        );
+    }
+
+    function testCloneProxy() public {
+        caller.deployCloneProxy(impl);
+        caller.callCloneProxy();
+        assertEq(
+            address(caller.cloneProxy()),
+            caller.computeCloneProxyAddress(impl)
+        );
     }
 }
