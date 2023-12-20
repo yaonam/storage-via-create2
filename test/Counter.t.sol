@@ -2,23 +2,39 @@
 pragma solidity ^0.8.13;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {Counter} from "../src/Counter.sol";
+import {Caller, Implementation} from "../src/Counter.sol";
 
 contract CounterTest is Test {
-    Counter public counter;
+    Caller public caller;
+    Implementation public impl;
 
     function setUp() public {
-        counter = new Counter();
-        counter.setNumber(0);
+        caller = new Caller();
+        impl = new Implementation();
     }
 
-    function test_Increment() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
+    // function test_Increment() public {
+    //     counter.increment();
+    //     assertEq(counter.number(), 1);
+    // }
+
+    // function testFuzz_SetNumber(uint256 x) public {
+    //     counter.setNumber(x);
+    //     assertEq(counter.number(), x);
+    // }
+
+    function testCalldataProxy() public {
+        caller.deployCalldataProxy();
+        caller.callCalldataProxy(impl, address(caller));
     }
 
-    function testFuzz_SetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+    function testStorageProxy() public {
+        caller.deployStorageProxy(impl);
+        caller.callStorageProxy();
+    }
+
+    function testBytecodeProxy() public {
+        caller.deployBytecodeProxy(impl);
+        caller.callBytecodeProxy();
     }
 }
