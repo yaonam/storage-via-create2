@@ -14,38 +14,29 @@ contract CounterTest is Test {
     }
 
     function testCalldataProxy() public {
-        caller.deployCalldataProxy();
+        address proxy = caller.deployCalldataProxy();
         caller.callCalldataProxy(impl, address(caller));
-        assertEq(
-            address(caller.calldataProxy()),
-            caller.computeCalldataProxyAddress()
-        );
+        assertEq(proxy, caller.computeCalldataProxyAddress());
     }
 
     function testImmutableProxy() public {
-        caller.deployImmutableProxy(impl);
-        caller.callImmutableProxy();
+        address proxy = caller.deployImmutableProxy(impl, address(caller));
+        caller.callImmutableProxy(impl, address(caller));
         assertEq(
-            address(caller.immutableProxy()),
+            proxy,
             caller.computeImmutableProxyAddress(impl, address(caller))
         );
     }
 
     function testBytecodeProxy() public {
-        caller.deployBytecodeProxy(impl);
+        address proxy = caller.deployBytecodeProxy(impl, address(caller));
         caller.callBytecodeProxy();
-        assertEq(
-            address(caller.bytecodeProxy()),
-            caller.computeBytecodeProxyAddress()
-        );
+        assertEq(proxy, caller.computeBytecodeProxyAddress());
     }
 
     function testCloneProxy() public {
-        caller.deployCloneProxy(impl);
-        caller.callCloneProxy();
-        assertEq(
-            address(caller.cloneProxy()),
-            caller.computeCloneProxyAddress(impl)
-        );
+        address proxy = caller.deployCloneProxy(impl);
+        caller.callCloneProxy(impl, address(caller));
+        assertEq(proxy, caller.computeCloneProxyAddress(impl));
     }
 }

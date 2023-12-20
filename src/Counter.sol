@@ -4,93 +4,96 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract Caller {
-    CalldataProxy public calldataProxy;
-    ImmutableProxy public immutableProxy;
-    BytecodeProxy public bytecodeProxy;
-    Implementation public cloneProxy;
+    bytes32 immutable BYTECODE_PROXY_CREATIONCODEHASH =
+        keccak256(type(BytecodeProxy).creationCode);
+    bytes32 immutable CALLDATA_PROXY_CREATIONCODEHASH =
+        keccak256(type(CalldataProxy).creationCode);
+    // bytes32 immutable IMMUTABLE_PROXY_CREATIONCODEHASH =
+    //     keccak256(type(ImmutableProxy).creationCode);
 
-    bytes32 salt = keccak256(abi.encode("hello"));
+    bytes32 immutable SALT = keccak256(abi.encode("hello"));
     Implementation tempImpl;
     address tempCred;
 
-    function deployCalldataProxy() external {
-        calldataProxy = new CalldataProxy{salt: salt}();
-    }
+    constructor() {}
 
-    function deployImmutableProxy(Implementation _impl) external {
-        immutableProxy = new ImmutableProxy{salt: salt}(_impl, address(this));
-    }
-
-    function deployBytecodeProxy(Implementation _impl) external {
+    function deployBytecodeProxy(
+        Implementation _impl,
+        address cred
+    ) external returns (address) {
         tempImpl = _impl;
-        tempCred = address(this);
-        bytecodeProxy = new BytecodeProxy{salt: salt}();
+        tempCred = cred;
+        return address(new BytecodeProxy{salt: SALT}());
     }
 
-    function deployCloneProxy(Implementation impl) external {
-        cloneProxy = Implementation(
-            Clones.cloneDeterministic(address(impl), salt)
-        );
+    function deployCalldataProxy() external returns (address) {
+        return address(new CalldataProxy{salt: SALT}());
     }
 
-    function callCalldataProxy(Implementation impl, address cred) external {
-        calldataProxy.forward(impl, cred);
+    function deployCloneProxy(Implementation impl) external returns (address) {
+        return Clones.cloneDeterministic(address(impl), SALT);
     }
 
-    function callImmutableProxy() external {
-        immutableProxy.forward();
+    function deployImmutableProxy(
+        Implementation _impl,
+        address cred
+    ) external returns (address) {
+        return address(new ImmutableProxy{salt: SALT}(_impl, cred));
     }
 
     function callBytecodeProxy() external {
-        bytecodeProxy.forward();
+        (bool success, ) = computeBytecodeProxyAddress().call(")");
+        require(success);
     }
 
-    function callCloneProxy() external {
-        cloneProxy.foo(address(this));
+    function callCalldataProxy(Implementation impl, address cred) external {
+        CalldataProxy(computeCalldataProxyAddress()).forward(impl, cred);
     }
 
-    function computeCalldataProxyAddress() external view returns (address) {
-        return getAddress(type(CalldataProxy).creationCode, salt);
+    function callCloneProxy(Implementation impl, address cred) external {
+        Implementation(computeCloneProxyAddress(impl)).foo(cred);
+    }
+
+    function callImmutableProxy(Implementation impl, address cred) external {
+        (bool success, ) = computeImmutableProxyAddress(impl, cred).call(")");
+        require(success);
+    }
+
+    function computeBytecodeProxyAddress() public view returns (address) {
+        return getAddress(BYTECODE_PROXY_CREATIONCODEHASH, SALT);
+    }
+
+    function computeCalldataProxyAddress() public view returns (address) {
+        return getAddress(CALLDATA_PROXY_CREATIONCODEHASH, SALT);
+    }
+
+    function computeCloneProxyAddress(
+        Implementation impl
+    ) public view returns (address) {
+        return Clones.predictDeterministicAddress(address(impl), SALT);
     }
 
     function computeImmutableProxyAddress(
         Implementation impl,
         address cred
-    ) external view returns (address) {
+    ) public view returns (address) {
         bytes memory bytecode = abi.encodePacked(
             type(ImmutableProxy).creationCode,
             abi.encode(impl, cred)
         );
-        return getAddress(bytecode, salt);
-    }
-
-    function computeBytecodeProxyAddress() external view returns (address) {
-        return getAddress(type(BytecodeProxy).creationCode, salt);
-    }
-
-    function computeCloneProxyAddress(
-        Implementation impl
-    ) external view returns (address) {
-        return Clones.predictDeterministicAddress(address(impl), salt);
+        return getAddress(keccak256(bytecode), SALT);
     }
 
     function getImplAndCred() external view returns (Implementation, address) {
         return (tempImpl, tempCred);
     }
 
-    // 2. Compute the address of the contract to be deployed
-    // NOTE: _salt is a random number used to create an address
     function getAddress(
-        bytes memory bytecode,
+        bytes32 bytecodeHash,
         bytes32 _salt
     ) public view returns (address) {
         bytes32 hash = keccak256(
-            abi.encodePacked(
-                bytes1(0xff),
-                address(this),
-                _salt,
-                keccak256(bytecode)
-            )
+            abi.encodePacked(bytes1(0xff), address(this), _salt, bytecodeHash)
         );
 
         // NOTE: cast last 20 bytes of hash to address
@@ -113,8 +116,20 @@ contract ImmutableProxy {
         cred = _cred;
     }
 
-    function forward() external {
-        impl.foo(cred);
+    fallback() external {
+        address _impl = address(impl);
+        bytes memory data = abi.encodeWithSelector(
+            Implementation.foo.selector,
+            cred
+        );
+        assembly {
+            let success := call(gas(), _impl, 0, add(data, 0x20), data, 0, 0)
+            returndatacopy(0, 0, returndatasize())
+            if iszero(success) {
+                revert(0, returndatasize())
+            }
+            return(0, returndatasize())
+        }
     }
 }
 
@@ -126,8 +141,20 @@ contract BytecodeProxy {
         (impl, cred) = Caller(msg.sender).getImplAndCred();
     }
 
-    function forward() external {
-        impl.foo(cred);
+    fallback() external {
+        address _impl = address(impl);
+        bytes memory data = abi.encodeWithSelector(
+            Implementation.foo.selector,
+            cred
+        );
+        assembly {
+            let success := call(gas(), _impl, 0, add(data, 0x20), data, 0, 0)
+            returndatacopy(0, 0, returndatasize())
+            if iszero(success) {
+                revert(0, returndatasize())
+            }
+            return(0, returndatasize())
+        }
     }
 }
 
