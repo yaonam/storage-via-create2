@@ -3,11 +3,12 @@ pragma solidity ^0.8.13;
 
 contract Caller {
     CalldataProxy calldataProxy;
-    StorageProxy storageProxy;
+    ImmutableProxy immutableProxy;
     BytecodeProxy bytecodeProxy;
 
     uint nonce;
-    Implementation public tempImpl;
+    Implementation tempImpl;
+    address tempCred;
 
     function deployCalldataProxy() external {
         calldataProxy = new CalldataProxy{
@@ -15,8 +16,8 @@ contract Caller {
         }();
     }
 
-    function deployStorageProxy(Implementation _impl) external {
-        storageProxy = new StorageProxy{salt: keccak256(abi.encode(nonce))}(
+    function deployImmutableProxy(Implementation _impl) external {
+        immutableProxy = new ImmutableProxy{salt: keccak256(abi.encode(nonce))}(
             _impl,
             address(this)
         );
@@ -24,6 +25,7 @@ contract Caller {
 
     function deployBytecodeProxy(Implementation _impl) external {
         tempImpl = _impl;
+        tempCred = address(this);
         bytecodeProxy = new BytecodeProxy{salt: keccak256(abi.encode(nonce))}();
     }
 
@@ -31,8 +33,8 @@ contract Caller {
         calldataProxy.forward(impl, cred);
     }
 
-    function callStorageProxy() external {
-        storageProxy.forward();
+    function callImmutableProxy() external {
+        immutableProxy.forward();
     }
 
     function callBytecodeProxy() external {
@@ -40,7 +42,7 @@ contract Caller {
     }
 
     function getImplAndCred() external view returns (Implementation, address) {
-        return (tempImpl, address(this));
+        return (tempImpl, tempCred);
     }
 }
 
@@ -50,7 +52,7 @@ contract CalldataProxy {
     }
 }
 
-contract StorageProxy {
+contract ImmutableProxy {
     Implementation public immutable impl;
     address public immutable cred;
 

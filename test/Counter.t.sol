@@ -28,9 +28,9 @@ contract CounterTest is Test {
         caller.callCalldataProxy(impl, address(caller));
     }
 
-    function testStorageProxy() public {
-        caller.deployStorageProxy(impl);
-        caller.callStorageProxy();
+    function testImmutableProxy() public {
+        caller.deployImmutableProxy(impl);
+        caller.callImmutableProxy();
     }
 
     function testBytecodeProxy() public {
