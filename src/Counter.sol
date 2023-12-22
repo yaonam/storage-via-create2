@@ -22,10 +22,12 @@ contract Caller {
     function deployBytecodeProxy(
         Implementation _impl,
         address cred
-    ) external returns (address) {
+    ) external returns (address proxy) {
         tempImpl = _impl;
         tempCred = cred;
-        return address(new BytecodeProxy{salt: SALT}());
+        proxy = address(new BytecodeProxy{salt: SALT}());
+        delete tempImpl;
+        delete tempCred;
     }
 
     function deployCalldataProxy() external returns (address) {

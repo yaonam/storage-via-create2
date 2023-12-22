@@ -7,7 +7,7 @@ This repo compares the deployment and call forwarding costs of three types of pr
 | src/Counter.sol:Caller contract |                 |        |        |        |         |
 | ------------------------------- | --------------- | ------ | ------ | ------ | ------- |
 | Deployment Cost                 | Deployment Size |        |        |        |         |
-| 690842                          | 4543            |        |        |        |         |
+| 703455                          | 4606            |        |        |        |         |
 | Function Name                   | min             | avg    | median | max    | # calls |
 | callBytecodeProxy               | 3897            | 3897   | 3897   | 3897   | 1       |
 | callCalldataProxy               | 4743            | 4743   | 4743   | 4743   | 1       |
@@ -17,10 +17,10 @@ This repo compares the deployment and call forwarding costs of three types of pr
 | computeCalldataProxyAddress     | 594             | 594    | 594    | 594    | 1       |
 | computeCloneProxyAddress        | 724             | 724    | 724    | 724    | 1       |
 | computeImmutableProxyAddress    | 2789            | 2789   | 2789   | 2789   | 1       |
-| deployBytecodeProxy             | 125266          | 125266 | 125266 | 125266 | 1       |
+| deployBytecodeProxy             | 100579          | 100579 | 100579 | 100579 | 1       |
 | deployCalldataProxy             | 89017           | 89017  | 89017  | 89017  | 1       |
 | deployCloneProxy                | 41661           | 41661  | 41661  | 41661  | 1       |
-| deployImmutableProxy            | 80396           | 80396  | 80396  | 80396  | 1       |
+| deployImmutableProxy            | 80384           | 80384  | 80384  | 80384  | 1       |
 | getImplAndCred                  | 444             | 444    | 444    | 444    | 1       |
 
 | src/Counter.sol:BytecodeProxy contract |                 |      |        |      |         |
