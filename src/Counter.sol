@@ -14,8 +14,8 @@ contract Caller {
     //     keccak256(type(ImmutableProxy).creationCode);
 
     bytes32 immutable SALT = keccak256(abi.encode("hello"));
-    Implementation tempImpl;
-    address tempCred;
+    Implementation tempImpl = Implementation(address(1));
+    address tempCred = address(1);
 
     constructor() {}
 
@@ -26,8 +26,6 @@ contract Caller {
         tempImpl = _impl;
         tempCred = cred;
         proxy = address(new BytecodeProxy{salt: SALT}());
-        delete tempImpl;
-        delete tempCred;
     }
 
     function deployCalldataProxy() external returns (address) {
